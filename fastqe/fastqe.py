@@ -355,7 +355,9 @@ class FastaStats(object):
             min_len = average = max_len = "-"
         return "\t".join([filename, num_seqs, num_bases, min_len, average,
                           max_len])
-
+# need to fix to actually detect protein...
+def isProtein(sequence):
+    return True
 
 def process_files(options):
     '''Compute and print FastaStats for each input FASTA file specified on the
