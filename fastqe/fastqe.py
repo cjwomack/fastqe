@@ -59,6 +59,7 @@ CASE_NEITHER = 0
 CASE_MIN = 1
 CASE_MAX = 2
 CASE_BOTH = 3
+CASE_NONE = 4
 
 def print_scale(full_quals,mapping_dict,binned):
     count = 0
@@ -102,6 +103,9 @@ def parse_args():
         default=DEFAULT_MIN_LEN,
         help='Minimum length sequence to include in stats (default {})'.format(
             DEFAULT_MIN_LEN))
+    parser.add_argument('--fasta',
+                        action='store_true',
+                        help='display a FASTA file in emoji')
     parser.add_argument('--scale',
                         action='store_true',
                         help='show relevant scale in output')
@@ -168,6 +172,7 @@ class FastaStats(object):
                  min_len=None,
                  max_len=None,
                  average=None,
+                 sequence=None,
                  counts_per_position=None,
                  quality_scores_mean=None,
                  quality_scores_min=None,
@@ -182,6 +187,7 @@ class FastaStats(object):
         self.quality_score_mean = quality_scores_mean
         self.quality_score_min = quality_scores_min
         self.quality_score_max = quality_scores_max
+        self.sequence = sequence
 
 
     def __eq__(self, other):
@@ -220,94 +226,101 @@ class FastaStats(object):
 
         num_seqs = num_bases = 0
         min_len = max_len = None
-        for seq in SeqIO.parse(fasta_file, "fastq"):
-
-            # fastqe
-
-            index=0
-            for s in seq.letter_annotations["phred_quality"]:
-
-                assert(s < read_size)
-                #maxs
-                if s > maxs[index]:
-                    maxs[index] = s
-
-                #mins
-                if mins[index] == 0:
-                    mins[index] = s
-                elif s < mins[index]:
-                    mins[index] = s
-
-                #counts
-                counts[index] += 1
-
-                #means
-                means[index] += s
-                index = index+1
-
-
-
-            # FASTA stat
-            this_len = len(seq.seq)
-            if this_len >= minlen_threshold:
-                if num_seqs == 0:
-                    min_len = max_len = this_len
-                else:
-                    min_len = min(this_len, min_len)
-                    max_len = max(this_len, max_len)
-                num_seqs += 1
-                num_bases += this_len
-
-
-        # after processing
-        if num_seqs > 0:
-            self.average = int(floor(float(num_bases) / num_seqs))
+        if options.fasta:
+            for seq in SeqIO.parse(fasta_file, "fasta"):
+                self.sequence = SeqRecord(Seq(seq))
         else:
-            self.average = None
-        self.num_seqs = num_seqs
-        self.num_bases = num_bases
-        self.min_len = min_len
-        self.max_len = max_len
+            for seq in SeqIO.parse(fasta_file, "fastq"):
+
+                # fastqe
+
+                index=0
+                for s in seq.letter_annotations["phred_quality"]:
+
+                    assert(s < read_size)
+                    #maxs
+                    if s > maxs[index]:
+                        maxs[index] = s
+
+                    #mins
+                    if mins[index] == 0:
+                        mins[index] = s
+                    elif s < mins[index]:
+                        mins[index] = s
+
+                    #counts
+                    counts[index] += 1
+
+                    #means
+                    means[index] += s
+                    index = index+1
 
 
-        #fastq
 
-        counts_cleaned = np.trim_zeros(counts, 'b' )
-        self.counts_per_position = counts_cleaned
+                # FASTA stat
+                this_len = len(seq.seq)
+                if this_len >= minlen_threshold:
+                    if num_seqs == 0:
+                        min_len = max_len = this_len
+                    else:
+                        min_len = min(this_len, min_len)
+                        max_len = max(this_len, max_len)
+                    num_seqs += 1
+                    num_bases += this_len
 
-
-        # create fake sequence for each type
-        cleaned = np.trim_zeros(means, 'b' )
-        #means_fp = cleaned/num_seqs
-        means_fp = cleaned/counts_cleaned # use counts to fix long read where not all seq same length
-        fake_seq= ''.join(["a"]*len(means_fp.round()))
-
-        record_mean = SeqRecord(Seq(fake_seq), id="test", name="mean scores",
-                   description="example with mean fastq socres",
-                   letter_annotations={'phred_quality':list(means_fp.round().astype(int))})
-
-        self.quality_scores_mean = record_mean
-
-
-
-        mins_trimmed = np.trim_zeros(mins,'b')
-        fake_seq_min= ''.join(["a"]*len(mins_trimmed))
-
-        record_mins = SeqRecord(Seq(fake_seq_min), id="test", name="mean scores",
-                   description="example with mean fastq socres",
-                   letter_annotations={'phred_quality':list(mins_trimmed.astype(int))})
-
-        self.quality_scores_mins= record_mins
+        #outer loop
+        if options.fasta:
+            pass
+        else:
+            # after processing
+            if num_seqs > 0:
+                self.average = int(floor(float(num_bases) / num_seqs))
+            else:
+                self.average = None
+            self.num_seqs = num_seqs
+            self.num_bases = num_bases
+            self.min_len = min_len
+            self.max_len = max_len
 
 
-        maxs_trimmed = np.trim_zeros(maxs,'b')
-        fake_seq_maxs= ''.join(["a"]*len(maxs_trimmed))
+            #fastq
 
-        record_maxs= SeqRecord(Seq(fake_seq_maxs), id="test", name="mean scores",
-                   description="example with mean fastq socres",
-                   letter_annotations={'phred_quality':list(maxs_trimmed.astype(int))})
+            counts_cleaned = np.trim_zeros(counts, 'b' )
+            self.counts_per_position = counts_cleaned
 
-        self.quality_scores_maxs= record_maxs
+
+            # create fake sequence for each type
+            cleaned = np.trim_zeros(means, 'b' )
+            #means_fp = cleaned/num_seqs
+            means_fp = cleaned/counts_cleaned # use counts to fix long read where not all seq same length
+            fake_seq= ''.join(["a"]*len(means_fp.round()))
+
+            record_mean = SeqRecord(Seq(fake_seq), id="test", name="mean scores",
+                       description="example with mean fastq socres",
+                       letter_annotations={'phred_quality':list(means_fp.round().astype(int))})
+
+            self.quality_scores_mean = record_mean
+
+
+
+            mins_trimmed = np.trim_zeros(mins,'b')
+            fake_seq_min= ''.join(["a"]*len(mins_trimmed))
+
+            record_mins = SeqRecord(Seq(fake_seq_min), id="test", name="mean scores",
+                       description="example with mean fastq socres",
+                       letter_annotations={'phred_quality':list(mins_trimmed.astype(int))})
+
+            self.quality_scores_mins= record_mins
+
+
+            maxs_trimmed = np.trim_zeros(maxs,'b')
+            fake_seq_maxs= ''.join(["a"]*len(maxs_trimmed))
+
+            record_maxs= SeqRecord(Seq(fake_seq_maxs), id="test", name="mean scores",
+                       description="example with mean fastq socres",
+                       letter_annotations={'phred_quality':list(maxs_trimmed.astype(int))})
+
+            self.quality_scores_maxs= record_maxs
 
 
         return self
@@ -361,7 +374,15 @@ def process_files(options):
     mapping_text = ""
     mapping_default = ":heart_eyes:"
     mapping_spacer = " "
-
+    
+    if options.fasta:
+        if isProtein():
+            mapping_dict = emaps.prot_seq_emoji_map
+            logging.info("Use FASTA file map for protein")
+        else:
+            mapping_dict = emaps.seq_emoji_map  
+            logging.info("Use FASTA file map for nucleotides")
+    
     if options.custom:
         with open(options.custom) as f:
             mapping_dict = ast.literal_eval(f.read())
@@ -395,6 +416,8 @@ def process_files(options):
     elif options.min:
         OUTPUT_OPTIONS = CASE_MIN
         logging.info("Calculate min quality per position")
+    elif options.fasta:
+        OUTPUT_OPTIONS = CASE_NONE
     else:
         OUTPUT_OPTIONS = CASE_NEITHER
 
@@ -473,12 +496,17 @@ def print_output(stats_object,fasta_filename, mapping_dict, mapping_text,mapping
         print(stats_object.pretty(fasta_filename), "max" + mapping_text,
               map_scores(stats_object.quality_scores_maxs, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
 
-    print(stats_object.pretty(fasta_filename), "mean" + mapping_text,
+    if output_type == CASE_NEITHER:
+        print(stats_object.pretty(fasta_filename), "mean" + mapping_text,
           map_scores(stats_object.quality_scores_mean, mapping_dict=mapping_dict,default_value = mapping_default,spacer=spacer), sep=sep,file=output_file)
 
     if output_type == CASE_BOTH or output_type == CASE_MIN:
         print(stats_object.pretty(fasta_filename), "min" + mapping_text,
               map_scores(stats_object.quality_scores_mins, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
+        
+    if output_type == CASE_NONE:
+        print(stats_object.pretty(fasta_filename), "display" + mapping_text,
+              map_scores(stats_object.sequence, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
 
 
     #print(stats_object.pretty(fasta_filename), "counts" + mapping_text,
@@ -533,7 +561,14 @@ def init_logging(log_filename):
         logging.info('program started')
         logging.info('command line: {0}'.format(' '.join(sys.argv)))
 
+#need to fix version in Namespace...
+def run_fastqe(fasta_files,minlen=0,scale=False,version=False,
+               mean = True,custom=None,noemoji=False,min=False,max=False,
+               output=None,long=None,log=None,bin=False):
+    options = Namespace(bin=bin, custom=custom, fasta_files=fasta_files,log=log, long=long, max=max, mean=mean, min=min, minlen=minlen, noemoji=noemoji, output=output, scale=scale, version=True)
 
+    process_files(options)
+        
 def main():
     "Orchestrate the execution of the program"
     options = parse_args()
