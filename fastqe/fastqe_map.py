@@ -7,6 +7,37 @@ seq_emoji_map = {
     'N': ':question:'
 }
 
+# only suitable for english speakers
+prot_seq_emoji_map = {
+    'A': ':avocado:',
+    'B': ':banana:',
+    'C': ':carrot:',
+    'D': ':doughnut:',
+    'E': ':egg:',
+    'F': ':fries:',
+    'G': ':garlic:',
+    'H': ':hamburger:',
+    'I': ':icecream:',
+    'J': ':jeans:',
+    'K': ':kiwi_fruit:',
+    'L': ':lemon:',
+    'M': ':mango:',
+    'N': ':nose:',
+    'O': ':octopus:',
+    'P': ':pineapple:,
+    'Q': ':princess:',
+    'R': ':rabbit:',
+    'S': ':strawberry:',
+    'T': ':taco:',
+    'U': ':umbrella:',
+    'V': ':volcano:',
+    'W': ':watermelon:',
+    'X': ':x:',
+    'Y': ':sailboat:',
+    '*': ':stop_sign:',
+    '-': ':safety_pin:',
+}
+
 all_qualities = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 
 #From https://en.wikipedia.org/wiki/FASTQ_format
