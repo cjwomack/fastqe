@@ -372,7 +372,7 @@ def process_files(options):
     mapping_spacer = " "
     
     if options.fasta:
-        if isProtein():
+        if isProtein('ACDNP'):
             mapping_dict = emaps.prot_seq_emoji_map
             logging.info("Use FASTA file map for protein")
         else:
