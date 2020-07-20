@@ -24,7 +24,7 @@ prot_seq_emoji_map = {
     'M': ':mango:',
     'N': ':nose:',
     'O': ':octopus:',
-    'P': ':pineapple:,
+    'P': ':pineapple:',
     'Q': ':princess:',
     'R': ':rabbit:',
     'S': ':strawberry:',
