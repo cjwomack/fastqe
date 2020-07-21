@@ -182,7 +182,7 @@ class FastaStats(object):
                  quality_scores_mean=None,
                  quality_scores_min=None,
                  quality_scores_max=None,
-                 options=options):
+                 options=None):
         "Build an empty FastaStats object"
         self.num_seqs = num_seqs
         self.num_bases = num_bases
