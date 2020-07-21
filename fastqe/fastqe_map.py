@@ -13,7 +13,7 @@ prot_seq_emoji_map = {
     'B': ':banana:',
     'C': ':cherries:',
     'D': ':doughnut:',
-    'E': ':egg:',
+    'E': ':elephant:',
     'F': ':fries:',
     'G': ':grapes:',
     'H': ':hamburger:',
