@@ -181,7 +181,8 @@ class FastaStats(object):
                  counts_per_position=None,
                  quality_scores_mean=None,
                  quality_scores_min=None,
-                 quality_scores_max=None):
+                 quality_scores_max=None,
+                 options=options):
         "Build an empty FastaStats object"
         self.num_seqs = num_seqs
         self.num_bases = num_bases
@@ -193,6 +194,7 @@ class FastaStats(object):
         self.quality_score_min = quality_scores_min
         self.quality_score_max = quality_scores_max
         self.sequence = sequence
+        self.options = options
 
 
     def __eq__(self, other):
@@ -230,7 +232,7 @@ class FastaStats(object):
 
         num_seqs = num_bases = 0
         min_len = max_len = None
-        if options.fasta:
+        if self.options.fasta:
             for seq in SeqIO.parse(fasta_file, "fasta"):
                 self.sequence = SeqRecord(Seq(seq))
         else:
@@ -273,7 +275,7 @@ class FastaStats(object):
                     num_bases += this_len
 
         #outer loop
-        if options.fasta:
+        if self.options.fasta:
             pass
         else:
             # after processing
@@ -463,7 +465,7 @@ def process_files(options):
             else:
                 with fasta_file:
 
-                    stats = FastaStats().from_file(fasta_file, read_size, options.minlen)
+                    stats = FastaStats(options).from_file(fasta_file, read_size, options.minlen)
                     print_output(stats,fasta_filename, mapping_dict, mapping_text, mapping_default, output_file, OUTPUT_OPTIONS, spacer = mapping_spacer)
 
 
@@ -479,7 +481,7 @@ def process_files(options):
         else:
             stdin_file = sys.stdin
 
-        stats = FastaStats().from_file(stdin_file, read_size, options.minlen)
+        stats = FastaStats(options).from_file(stdin_file, read_size, options.minlen)
         print_output(stats, "-", mapping_dict, mapping_text, mapping_default, output_file, OUTPUT_OPTIONS, spacer = mapping_spacer)
 
 
