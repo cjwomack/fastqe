@@ -589,7 +589,7 @@ def run_fastqe(fasta_files,minlen=0,scale=False,version=False,
     options = Namespace(bin=bin, fasta=fasta, custom=custom, fasta_files=fasta_files,log=log, long=long, max=max, mean=mean, min=min, minlen=minlen, noemoji=noemoji, output=output, scale=scale, version=True)
     if options.version:
         print(PROGRAM_NAME,PROGRAM_VERSION)
-        sys.exit()
+        return
     process_files(options)
         
 def main():
