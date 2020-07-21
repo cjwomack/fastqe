@@ -5,13 +5,12 @@ Copyright   : (c) Andrew Lonsdale, 2017
 License     : MIT
 Maintainer  : Andrew Lonsdale
 Portability : POSIX
-
 The program reads one or more input FASTQ files. For each file it computes a
 variety of statistics, and then prints a summary of the statistics as output.... in emoji.
 '''
 
 from __future__ import print_function
-from argparse import ArgumentParser, FileType
+from argparse import ArgumentParser, FileType, Namespace
 from math import floor
 import sys
 from Bio import SeqIO
@@ -61,12 +60,20 @@ CASE_MAX = 2
 CASE_BOTH = 3
 CASE_NONE = 4
 
-def print_scale(full_quals,mapping_dict,binned):
-    count = 0
-    print("#scale for fastqe")
-    for i in full_quals:
-        print("# ",count,i,emojify(mapping_dict.get(i,':heart_eyes:')))
-        count = count +1
+def print_scale(full_quals,mapping_dict,binned,fasta=False):
+    if fasta:
+        #need an option for protein
+        print("#scale for fasta")
+        for i in full_quals:
+            print("# ",i,emojify(mapping_dict.get(i,':heart_eyes:')))
+    else:
+        count = 0
+        print("#scale for fastqe")
+        for i in full_quals:
+            print("# ",count,i,emojify(mapping_dict.get(i,':heart_eyes:')))
+            count = count +1
+
+    
 
 
 
@@ -79,7 +86,6 @@ except pkg_resources.DistributionNotFound:
 def exit_with_error(message, exit_status):
     '''Print an error message to stderr, prefixed by the program name and 'ERROR'.
     Then exit program with supplied exit status.
-
     Arguments:
         message: an error message as a string.
         exit_status: a positive integer representing the exit status of the
@@ -156,7 +162,6 @@ def parse_args():
 
 class FastaStats(object):
     '''Compute various statistics for a FASTA file:
-
     num_seqs: the number of sequences in the file satisfying the minimum
        length requirement (minlen_threshold).
     num_bases: the total length of all the counted sequences.
@@ -176,7 +181,8 @@ class FastaStats(object):
                  counts_per_position=None,
                  quality_scores_mean=None,
                  quality_scores_min=None,
-                 quality_scores_max=None):
+                 quality_scores_max=None,
+                 options=None):
         "Build an empty FastaStats object"
         self.num_seqs = num_seqs
         self.num_bases = num_bases
@@ -187,7 +193,8 @@ class FastaStats(object):
         self.quality_score_mean = quality_scores_mean
         self.quality_score_min = quality_scores_min
         self.quality_score_max = quality_scores_max
-        self.sequence = sequence
+        self.sequence = list()
+        self.options = options
 
 
     def __eq__(self, other):
@@ -206,7 +213,6 @@ class FastaStats(object):
 
     def from_file(self, fasta_file, read_size, minlen_threshold=DEFAULT_MIN_LEN):
         '''Compute a FastaStats object from an input FASTA file.
-
         Arguments:
            fasta_file: an open file object for the FASTA file
            minlen_threshold: the minimum length sequence to consider in
@@ -226,9 +232,9 @@ class FastaStats(object):
 
         num_seqs = num_bases = 0
         min_len = max_len = None
-        if options.fasta:
+        if self.options.fasta:
             for seq in SeqIO.parse(fasta_file, "fasta"):
-                self.sequence = SeqRecord(Seq(seq))
+                self.sequence.append(SeqRecord(seq,name=seq.name))
         else:
             for seq in SeqIO.parse(fasta_file, "fastq"):
 
@@ -268,10 +274,6 @@ class FastaStats(object):
                     num_seqs += 1
                     num_bases += this_len
 
-        #outer loop
-        if options.fasta:
-            pass
-        else:
             # after processing
             if num_seqs > 0:
                 self.average = int(floor(float(num_bases) / num_seqs))
@@ -332,7 +334,6 @@ class FastaStats(object):
         the attributes of the object. If 0 sequences were read from the FASTA
         file then num_seqs and num_bases are output as 0, and min_len, average
         and max_len are output as a dash "-".
-
         Arguments:
            filename: the name of the input FASTA file
         Result:
@@ -355,6 +356,7 @@ class FastaStats(object):
             min_len = average = max_len = "-"
         return "\t".join([filename, num_seqs, num_bases, min_len, average,
                           max_len])
+
 # need to fix to actually detect protein...
 def isProtein(sequence):
     return True
@@ -363,7 +365,6 @@ def process_files(options):
     '''Compute and print FastaStats for each input FASTA file specified on the
     command line. If no FASTA files are specified on the command line then
     read from the standard input (stdin).
-
     Arguments:
        options: the command line options of the program
     Result:
@@ -378,7 +379,7 @@ def process_files(options):
     mapping_spacer = " "
     
     if options.fasta:
-        if isProtein():
+        if isProtein('ACDNP'):
             mapping_dict = emaps.prot_seq_emoji_map
             logging.info("Use FASTA file map for protein")
         else:
@@ -439,7 +440,10 @@ def process_files(options):
     # before file processing
     # scale - print scale first before output, with lines starting with #
     if options.scale:
-        print_scale(emaps.all_qualities, mapping_dict, options.bin)
+        if options.fasta:
+            print_scale(emaps.prot_scale, mapping_dict, options.bin,fasta=True)
+        else:
+            print_scale(emaps.all_qualities, mapping_dict, options.bin)
 
 
 
@@ -458,7 +462,7 @@ def process_files(options):
             else:
                 with fasta_file:
 
-                    stats = FastaStats().from_file(fasta_file, read_size, options.minlen)
+                    stats = FastaStats(options=options).from_file(fasta_file, read_size, options.minlen)
                     print_output(stats,fasta_filename, mapping_dict, mapping_text, mapping_default, output_file, OUTPUT_OPTIONS, spacer = mapping_spacer)
 
 
@@ -474,7 +478,7 @@ def process_files(options):
         else:
             stdin_file = sys.stdin
 
-        stats = FastaStats().from_file(stdin_file, read_size, options.minlen)
+        stats = FastaStats(options=options).from_file(stdin_file, read_size, options.minlen)
         print_output(stats, "-", mapping_dict, mapping_text, mapping_default, output_file, OUTPUT_OPTIONS, spacer = mapping_spacer)
 
 
@@ -507,8 +511,9 @@ def print_output(stats_object,fasta_filename, mapping_dict, mapping_text,mapping
               map_scores(stats_object.quality_scores_mins, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
         
     if output_type == CASE_NONE:
-        print(stats_object.pretty(fasta_filename), "display" + mapping_text,
-              map_scores(stats_object.sequence, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
+        for seq in stats_object.sequence:
+            print(stats_object.pretty(fasta_filename), seq.name + mapping_text,
+                  map_fasta(seq, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
 
 
     #print(stats_object.pretty(fasta_filename), "counts" + mapping_text,
@@ -537,7 +542,22 @@ def map_scores(sequence,
     mapped_values = spacer.join([mapping_function(mapping_dict.get(s, default_value)) for s in QualityIO._get_sanger_quality_str(sequence)])
     return(mapped_values)
 
+def map_fasta(sequence,
+               mapping_dict = emaps.prot_seq_emoji_map,
+               default_value = ":heart_eyes:",
+               mapping_function = emojify,
+              spacer = " "):
+    '''
+    :param sequence:
+    :param mapping_dict:
+    :param default_value:
+    :param mapping_function:
+    :param spacer:
+    :return:
+    '''
 
+    mapped_fasta = spacer.join([mapping_function(mapping_dict.get(s, default_value)) for s in sequence])
+    return(mapped_fasta)
 
 
 
@@ -547,7 +567,6 @@ def init_logging(log_filename):
     initialise the logging facility, and write log statement
     indicating the program has started, and also write out the
     command line from sys.argv
-
     Arguments:
         log_filename: either None, if logging is not required, or the
             string name of the log file to write to
@@ -568,7 +587,8 @@ def run_fastqe(fasta_files,minlen=0,scale=False,version=False,
                mean = True,custom=None,noemoji=False,min=False,max=False,
                output=None,long=None,log=None,bin=False,fasta=False):
     options = Namespace(bin=bin, fasta=fasta, custom=custom, fasta_files=fasta_files,log=log, long=long, max=max, mean=mean, min=min, minlen=minlen, noemoji=noemoji, output=output, scale=scale, version=True)
-
+    if options.version:
+        pass
     process_files(options)
         
 def main():
