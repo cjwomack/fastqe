@@ -1,1 +1,1 @@
-fastqe==0.2.6
+https://github.com/cjwomack/fastqe/archive/to_merge.tar.gz
