@@ -274,10 +274,6 @@ class FastaStats(object):
                     num_seqs += 1
                     num_bases += this_len
 
-        #outer loop
-        if self.options.fasta:
-            pass
-        else:
             # after processing
             if num_seqs > 0:
                 self.average = int(floor(float(num_bases) / num_seqs))
@@ -360,6 +356,7 @@ class FastaStats(object):
             min_len = average = max_len = "-"
         return "\t".join([filename, num_seqs, num_bases, min_len, average,
                           max_len])
+
 # need to fix to actually detect protein...
 def isProtein(sequence):
     return True
@@ -589,14 +586,13 @@ def run_fastqe(fasta_files,minlen=0,scale=False,version=False,
                mean = True,custom=None,noemoji=False,min=False,max=False,
                output=None,long=None,log=None,bin=False,fasta=False):
     options = Namespace(bin=bin, fasta=fasta, custom=custom, fasta_files=fasta_files,log=log, long=long, max=max, mean=mean, min=min, minlen=minlen, noemoji=noemoji, output=output, scale=scale, version=True)
-
+    if options.version:
+        pass
     process_files(options)
         
 def main():
     "Orchestrate the execution of the program"
     options = parse_args()
-    print(options)
-    print(type(options))
     init_logging(options.log)
     #print(HEADER)
     process_files(options)
