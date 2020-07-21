@@ -234,7 +234,7 @@ class FastaStats(object):
         min_len = max_len = None
         if self.options.fasta:
             for seq in SeqIO.parse(fasta_file, "fasta"):
-                self.sequence.append(SeqRecord(seq))
+                self.sequence.append(SeqRecord(seq,name=seq.name))
         else:
             for seq in SeqIO.parse(fasta_file, "fastq"):
 
@@ -512,7 +512,7 @@ def print_output(stats_object,fasta_filename, mapping_dict, mapping_text,mapping
         
     if output_type == CASE_NONE:
         for seq in stats_object.sequence:
-            print(stats_object.pretty(fasta_filename), "display" + mapping_text,
+            print(stats_object.pretty(fasta_filename), seq.name + mapping_text,
                   map_fasta(seq, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
 
 
