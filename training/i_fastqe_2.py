@@ -465,7 +465,7 @@ def process_files(options):
             else:
                 with fasta_file:
 
-                    stats = FastaStats(options).from_file(fasta_file, read_size, options.minlen)
+                    stats = FastaStats(options=options).from_file(fasta_file, read_size, options.minlen)
                     print_output(stats,fasta_filename, mapping_dict, mapping_text, mapping_default, output_file, OUTPUT_OPTIONS, spacer = mapping_spacer)
 
 
@@ -481,7 +481,7 @@ def process_files(options):
         else:
             stdin_file = sys.stdin
 
-        stats = FastaStats(options).from_file(stdin_file, read_size, options.minlen)
+        stats = FastaStats(options=options).from_file(stdin_file, read_size, options.minlen)
         print_output(stats, "-", mapping_dict, mapping_text, mapping_default, output_file, OUTPUT_OPTIONS, spacer = mapping_spacer)
 
 
