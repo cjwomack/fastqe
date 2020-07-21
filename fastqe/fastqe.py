@@ -586,7 +586,7 @@ def init_logging(log_filename):
 def run_fastqe(fasta_files,minlen=0,scale=False,version=False,
                mean = True,custom=None,noemoji=False,min=False,max=False,
                output=None,long=None,log=None,bin=False,fasta=False):
-    options = Namespace(bin=bin, fasta=fasta, custom=custom, fasta_files=fasta_files,log=log, long=long, max=max, mean=mean, min=min, minlen=minlen, noemoji=noemoji, output=output, scale=scale, version=True)
+    options = Namespace(bin=bin, fasta=fasta, custom=custom, fasta_files=fasta_files,log=log, long=long, max=max, mean=mean, min=min, minlen=minlen, noemoji=noemoji, output=output, scale=scale, version=version)
     if options.version:
         print(PROGRAM_NAME,PROGRAM_VERSION)
         return
