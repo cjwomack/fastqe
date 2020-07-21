@@ -578,6 +578,8 @@ def run_fastqe(fasta_files,minlen=0,scale=False,version=False,
 def main():
     "Orchestrate the execution of the program"
     options = parse_args()
+    print(options)
+    print(type(options))
     init_logging(options.log)
     #print(HEADER)
     process_files(options)
