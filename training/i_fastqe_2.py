@@ -433,7 +433,10 @@ def process_files(options):
     # before file processing
     # scale - print scale first before output, with lines starting with #
     if options.scale:
-        print_scale(emaps.all_qualities, mapping_dict, options.bin)
+        if options.fasta:
+            print_scale(emaps.prot_scale, mapping_dict, options.bin)
+        else:
+            print_scale(emaps.all_qualities, mapping_dict, options.bin)
 
 
 
