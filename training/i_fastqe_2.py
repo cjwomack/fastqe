@@ -60,12 +60,20 @@ CASE_MAX = 2
 CASE_BOTH = 3
 CASE_NONE = 4
 
-def print_scale(full_quals,mapping_dict,binned):
-    count = 0
-    print("#scale for fastqe")
-    for i in full_quals:
-        print("# ",count,i,emojify(mapping_dict.get(i,':heart_eyes:')))
-        count = count +1
+def print_scale(full_quals,mapping_dict,binned,fasta=False):
+    if fasta:
+        #need an option for protein
+        print("#scale for fasta")
+        for i in full_quals:
+            print("# ",i,emojify(mapping_dict.get(i,':heart_eyes:')))
+    else:
+        count = 0
+        print("#scale for fastqe")
+        for i in full_quals:
+            print("# ",count,i,emojify(mapping_dict.get(i,':heart_eyes:')))
+            count = count +1
+
+    
 
 
 
@@ -434,7 +442,7 @@ def process_files(options):
     # scale - print scale first before output, with lines starting with #
     if options.scale:
         if options.fasta:
-            print_scale(emaps.prot_scale, mapping_dict, options.bin)
+            print_scale(emaps.prot_scale, mapping_dict, options.bin,fasta=True)
         else:
             print_scale(emaps.all_qualities, mapping_dict, options.bin)
 
