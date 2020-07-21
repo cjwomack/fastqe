@@ -9,36 +9,37 @@ seq_emoji_map = {
 
 # only suitable for english speakers
 prot_seq_emoji_map = {
-    'A': ':avocado:',
+    'A': ':green_apple:',
     'B': ':banana:',
-    'C': ':carrot:',
+    'C': ':cherries:',
     'D': ':doughnut:',
     'E': ':egg:',
     'F': ':fries:',
-    'G': ':garlic:',
+    'G': ':grapes:',
     'H': ':hamburger:',
     'I': ':icecream:',
     'J': ':jeans:',
-    'K': ':kiwi_fruit:',
+    'K': ':key:',
     'L': ':lemon:',
-    'M': ':mango:',
+    'M': ':mushroom:',
     'N': ':nose:',
     'O': ':octopus:',
     'P': ':pineapple:',
     'Q': ':princess:',
     'R': ':rabbit:',
     'S': ':strawberry:',
-    'T': ':taco:',
+    'T': ':tomato:',
     'U': ':umbrella:',
     'V': ':volcano:',
     'W': ':watermelon:',
     'X': ':x:',
     'Y': ':sailboat:',
-    '*': ':stop_sign:',
-    '-': ':safety_pin:',
+    '*': ':hand:',
+    '-': ':wavy_dash:',
 }
 
 all_qualities = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+prot_scale = "ABCDEFGHIJKLMNOPQRSTUVWXY*-"
 
 #From https://en.wikipedia.org/wiki/FASTQ_format
 # note order not exact here
