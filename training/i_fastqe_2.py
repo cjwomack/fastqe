@@ -515,7 +515,7 @@ def print_output(stats_object,fasta_filename, mapping_dict, mapping_text,mapping
         
     if output_type == CASE_NONE:
         print(stats_object.pretty(fasta_filename), "display" + mapping_text,
-              map_scores(stats_object.sequence, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
+              map_fasta(stats_object.sequence, mapping_dict=mapping_dict, default_value = mapping_default,spacer=spacer), sep=sep, file=output_file)
 
 
     #print(stats_object.pretty(fasta_filename), "counts" + mapping_text,
@@ -544,7 +544,22 @@ def map_scores(sequence,
     mapped_values = spacer.join([mapping_function(mapping_dict.get(s, default_value)) for s in QualityIO._get_sanger_quality_str(sequence)])
     return(mapped_values)
 
+def map_fasta(sequence,
+               mapping_dict = emaps.prot_seq_emoji_map,
+               default_value = ":heart_eyes:",
+               mapping_function = emojify,
+              spacer = " "):
+    '''
+    :param sequence:
+    :param mapping_dict:
+    :param default_value:
+    :param mapping_function:
+    :param spacer:
+    :return:
+    '''
 
+    mapped_fasta = spacer.join([mapping_function(mapping_dict.get(s, default_value)) for s in sequence])
+    return(mapped_fasta)
 
 
 
