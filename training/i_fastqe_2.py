@@ -234,7 +234,7 @@ class FastaStats(object):
         min_len = max_len = None
         if self.options.fasta:
             for seq in SeqIO.parse(fasta_file, "fasta"):
-                self.sequence = SeqRecord(Seq(seq))
+                self.sequence = SeqRecord(seq)
         else:
             for seq in SeqIO.parse(fasta_file, "fastq"):
 
