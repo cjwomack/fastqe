@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 LONG_DESCRIPTION = \
 '''The program reads one or more input FASTQ files.
 For each file it computes the minimum, maximum and mean FASTQ quality score at each position across all reads in a file.
@@ -10,7 +10,7 @@ For some reason, it then represents these as emoji.
 setup(
   name = 'fastqe',
   packages = ['fastqe'],
-  version = '0.2.6',
+  version = '0.2.5',
   license = 'MIT',
   description = 'A emoji based bioinformatics command line tool',
   long_description=(LONG_DESCRIPTION),
