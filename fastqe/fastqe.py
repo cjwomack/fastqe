@@ -29,6 +29,7 @@ import os
 import gzip
 import ast
 import binascii
+import inspect
 
 
 #PyCharm testing command line processing
