@@ -547,7 +547,7 @@ def run_fastqe(fasta_files,minlen=0,scale=False,version=False,
             options_list.extend(["--long",value])
         elif key == "minlen":
             options_list.extend(["--minlen",value])
-        elif value = True:
+        elif value == True:
             options_list.append(["--"+key])
 
     options = parse_args(options_list)
