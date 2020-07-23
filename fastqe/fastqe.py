@@ -536,10 +536,21 @@ def init_logging(log_filename):
 def run_fastqe(fasta_files,minlen=0,scale=False,version=False,
                mean = True,custom=None,noemoji=False,min=False,max=False,
                output=None,long=None,log=None,bin=False):
-    options = Namespace(bin=bin, custom=custom, fasta_files=fasta_files,log=log, long=long, max=max, mean=mean, min=min, minlen=minlen, noemoji=noemoji, output=output, scale=scale, version=version)
-    if options.version:
-        print(PROGRAM_NAME,PROGRAM_VERSION)
-        return
+    values = inspect.getargvalues(inspect.currentframe())
+    options_list = ['fasta_files',values.locals['fasta_files']]
+    for key,value in values.locals.items():
+        if key == "log" and value is not None:
+            options_list.extend(["--log",value])
+        elif key == "custom" and value is not None:
+            options_list.extend(["--custom",value])
+        elif key == "long" and value is not None:
+            options_list.extend(["--long",value])
+        elif key == "minlen":
+            options_list.extend(["--minlen",value])
+        elif value = True:
+            options_list.append(["--"+key])
+
+    options = parse_args(options_list)
     process_files(options)
 
 def main():
